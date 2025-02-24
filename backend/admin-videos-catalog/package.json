@@ -1,0 +1,16 @@
+{
+  "name": "admin-videos-catalog",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "vitest"
+  },
+  "keywords": [],
+  "author": "Wellington Lima",
+  "license": "MIT",
+  "description": "A microservice responsible for managing the video catalog in the admin panel.",
+  "devDependencies": {
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.7"
+  }
+}
