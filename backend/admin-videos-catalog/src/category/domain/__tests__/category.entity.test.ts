@@ -1,11 +1,17 @@
-import { describe, expect, test } from 'vitest'
+import { beforeEach, describe, expect, test, vi } from 'vitest'
 import { Category } from '../category.entity'
 import { Uuid } from '../../../shared/domain/value-objects/uuid.vo'
+import { expectValidationError } from '../../../shared/infra/utils/test/expect-validation-error';
 
 describe('Category Unit Tests', () => {
+  let validateSpy: any;
+  beforeEach(() => {
+    validateSpy = vi.spyOn(Category, 'validate')
+  })
+
   describe('constructor', () => {
     test('should create a new category with default values', () => {
-      const category = new Category({
+      const category = Category.create({
         name: 'Test Category'
       })
 
@@ -14,6 +20,7 @@ describe('Category Unit Tests', () => {
       expect(category.description).toBeNull()
       expect(category.is_active).toBe(true)
       expect(category.created_at).toBeInstanceOf(Date)
+      expect(validateSpy).toHaveBeenCalledTimes(1)
     })
 
     test('should create a new category with provided values', () => {
@@ -43,6 +50,7 @@ describe('Category Unit Tests', () => {
       expect(category.description).toBeNull()
       expect(category.is_active).toBe(true)
       expect(category.created_at).toBeInstanceOf(Date)
+      expect(validateSpy).toHaveBeenCalledTimes(1)
     })
 
     test('should create a new category with provided values', () => {
@@ -57,6 +65,7 @@ describe('Category Unit Tests', () => {
       expect(category.description).toBe('Test Description')
       expect(category.is_active).toBe(false)
       expect(category.created_at).toBeInstanceOf(Date)
+      expect(validateSpy).toHaveBeenCalledTimes(1)
     })
   })
 
@@ -75,16 +84,17 @@ describe('Category Unit Tests', () => {
   })
 
   test("should change category's name", () => {
-    const category = new Category({
+    const category = Category.create({
       name: 'Test Category'
     })
 
     category.changeName('New Category Name')
     expect(category.name).toBe('New Category Name')
+    expect(validateSpy).toHaveBeenCalledTimes(2)
   })
 
   test('should change category description', () => {
-    const category = new Category({
+    const category = Category.create({
       name: 'Test Category'
     })
 
@@ -103,7 +113,7 @@ describe('Category Unit Tests', () => {
   })
 
   test('should deactivate category', () => {
-    const category = new Category({
+    const category = Category.create({
       name: 'Test Category',
       is_active: true
     })
@@ -128,6 +138,75 @@ describe('Category Unit Tests', () => {
       is_active: false,
       created_at: new Date('2021-01-01')
     })
+  })
+})
+
+describe('Category Validator', () => {
+
+  describe('create command', () => {
+    test("should create a valid category", () => {
+      const category = Category.create({ name: "Valid Name", description: "Valid", is_active: true });
+      expect(category).toBeInstanceOf(Category);
+      expect(category.name).toBe("Valid Name");
+    });
+
+    test("should throw validation error for an empty name", () => {
+      expectValidationError(
+        () => Category.create({ name: "", description: "Valid", is_active: true }), 
+        "name", 
+        "name should not be empty"
+      );
+    });
+
+    test("should throw validation error for a name longer than 255 characters", () => {
+      expectValidationError(
+        () => Category.create({ name: "a".repeat(256), description: "Valid", is_active: true }), 
+        "name", 
+        "name must be shorter than or equal to 255 characters"
+      );
+    });
+
+    test("should throw validation error for non-string description", () => {
+      expectValidationError(
+        () => Category.create({ name: "Movie", description: 123 as any, is_active: true }), 
+        "description", 
+        "description must be a string"
+      );
+    });
+
+    test("should throw validation error for non-boolean is_active", () => {
+      expectValidationError(
+        () => Category.create({ name: "Valid Name", description: "Valid", is_active: "true" as any }), 
+        "is_active", 
+        "is_active must be a boolean value"
+      );
+    });
+
+    test("should throw validation error when changing name to an invalid value", () => {
+      const category = Category.create({ name: "Valid Name", description: "Valid", is_active: true });
+      expectValidationError(
+        () => category.changeName(""),
+        "name",
+        "name should not be empty"
+      );
+      expectValidationError(
+        () => category.changeName("a".repeat(256)),
+        "name",
+        "name must be shorter than or equal to 255 characters"
+      );
+    });
+     
+    test("should throw validation error when changing description to an invalid value", () => {
+      const category = Category.create({ name: "Valid Name", description: "Valid", is_active: true });
+      expectValidationError(
+        () => category.changeDescription(123 as any),
+        "description",
+        "description must be a string"
+      );
+    });
+ 
+  
+  
   })
 })
 

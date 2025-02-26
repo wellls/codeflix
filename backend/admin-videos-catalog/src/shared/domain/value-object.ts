@@ -1,4 +1,4 @@
-import { isEqual } from "../utils/verify-object-is-equal";
+import { isEqual } from "../infra/utils/verify-object-is-equal";
 
 export abstract class ValueObject {
   public equals(vo: this): boolean {
