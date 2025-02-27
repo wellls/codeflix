@@ -11,19 +11,19 @@ export type SearchParamsConstructorProps<Filter = string> = {
 };
 
 export class SearchParams<Filter = string> extends ValueObject {
-  protected _page: number;
+  protected _page: number = 1;
   protected _per_page: number = 15;
-  protected _sort: string | null;
-  protected _sort_dir: SortDirection | null;
-  protected _filter: Filter | null;
+  protected _sort: string | null = "";
+  protected _sort_dir: SortDirection | null = "asc";
+  protected _filter: Filter | null = null;
 
   constructor(props: SearchParamsConstructorProps<Filter> = {}) {
     super();
-    this._page = props.page!;
-    this._per_page = props.per_page!;
-    this._sort = props.sort!;
-    this._sort_dir = props.sort_dir!;
-    this._filter = props.filter!;
+    this.page = props.page!;
+    this.per_page = props.per_page!;
+    this.sort = props.sort!;
+    this.sort_dir = props.sort_dir!;
+    this.filter = props.filter!;
   }
 
   get page() {
