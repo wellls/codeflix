@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, test } from "vitest";
 import { InMemoryRepository } from "./in-memory.repository";
-import { Entity } from "../../domain/entity";
-import { Uuid } from "../../domain/value-objects/uuid.vo";
+import { Entity } from "../../../domain/entity";
+import { Uuid } from "../../../domain/value-objects/uuid.vo";
 
 type StubyEntityProps = {
   entity_id: Uuid;
