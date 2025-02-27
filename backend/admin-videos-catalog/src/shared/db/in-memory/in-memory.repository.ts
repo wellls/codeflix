@@ -17,29 +17,26 @@ export abstract class InMemoryRepository<E extends Entity, EntityId extends Valu
   }
   
   async update(entity: E): Promise<void> {
-    const itemIndex = this.items.findIndex((item) => item.entity_id.equals(entity.entity_id));
-
-    if(!itemIndex) {
-      throw new NotFoundError(entity.entity_id, this.getEntity());
-    }
+    const item = await this.findById(entity.entity_id as EntityId);
+    const itemIndex = this.items.indexOf(item);
     
     this.items[itemIndex] = entity;    
   }
 
-  delete(entity_id: EntityId): Promise<void> {
-    const item = this.findById(entity_id);
-
-    if(!item) {
-      throw new NotFoundError(entity_id, this.getEntity());
-    }
+  async delete(entity_id: EntityId): Promise<void> {
+    const item = await this.findById(entity_id);
+    const itemIndex = this.items.indexOf(item);
     
-    this.items = this.items.filter((item) => !item.entity_id.equals(entity_id));
+    this.items.splice(itemIndex, 1);     
     return Promise.resolve();    
   }
 
-  async findById(entity_id: EntityId): Promise<E | null> {
+  async findById(entity_id: EntityId): Promise<E> {
     const item = this.items.find((item) => item.entity_id.equals(entity_id));
-    return typeof item === "undefined" ? null : item;
+    if(!item) {
+      throw new NotFoundError(entity_id, this.getEntity());
+    }
+    return item;
   }
 
   async findAll(): Promise<any[]> {
