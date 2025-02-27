@@ -1,11 +1,12 @@
 import { Entity } from "../../domain/entity";
+import { NotFoundError } from "../../domain/errors/not-found.error";
 import { IRepository } from "../../domain/repository/repository-interface";
 import { ValueObject } from "../../domain/value-object";
 
 export abstract class InMemoryRepository<E extends Entity, EntityId extends ValueObject> 
   implements IRepository<E, EntityId> {
 
-    items: E[] = [];
+  items: E[] = [];
 
   async insert(entity: any): Promise<void> {
     this.items.push(entity);
@@ -19,7 +20,7 @@ export abstract class InMemoryRepository<E extends Entity, EntityId extends Valu
     const itemIndex = this.items.findIndex((item) => item.entity_id.equals(entity.entity_id));
 
     if(!itemIndex) {
-      throw new Error("Entity not found");
+      throw new NotFoundError(entity.entity_id, this.getEntity());
     }
     
     this.items[itemIndex] = entity;    
@@ -29,7 +30,7 @@ export abstract class InMemoryRepository<E extends Entity, EntityId extends Valu
     const item = this.findById(entity_id);
 
     if(!item) {
-      throw new Error("Entity not found");
+      throw new NotFoundError(entity_id, this.getEntity());
     }
     
     this.items = this.items.filter((item) => !item.entity_id.equals(entity_id));
